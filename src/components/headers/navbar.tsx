@@ -1,7 +1,6 @@
 'use client';
 
 import { useUser } from '@/context/user-context';
-import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -12,12 +11,6 @@ import {
 import Link from 'next/link';
 import { Building2, Users } from 'lucide-react';
 import { USERS, UserId } from '@/types/supplier';
-import { cn } from '@/lib/utils';
-
-const roleColors: Record<string, string> = {
-  REQUESTER: 'bg-blue-50 text-blue-700 border-blue-200',
-  APPROVER: 'bg-amber-50 text-amber-700 border-amber-200',
-};
 
 const roleLabels: Record<string, string> = {
   REQUESTER: 'Requester',
@@ -50,7 +43,7 @@ export function Navbar() {
                 className="h-8 w-36 sm:w-44 border-0 bg-transparent shadow-none px-2 focus:ring-0 text-gray-600"
                 aria-label="Select active user"
               >
-                <SelectValue />
+                <SelectValue placeholder={`${user.name} (${roleLabels[user.role]})`} />
               </SelectTrigger>
               <SelectContent>
                 {(Object.keys(USERS) as UserId[]).map((id) => (

@@ -9,7 +9,6 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import {
   Card,
-  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -24,9 +23,9 @@ import { SupplierActions } from './supplier-actions';
 
 function DetailRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
-    <div className="grid gap-1 border-b py-3 last:border-b-0 sm:grid-cols-[180px_1fr] sm:gap-4">
-      <dt className="text-sm font-medium text-muted-foreground">{label}</dt>
-      <dd className="text-sm text-foreground">{value}</dd>
+    <div className="grid gap-1 border-b border-gray-100 py-3 last:border-b-0 sm:grid-cols-[180px_1fr] sm:gap-4">
+      <dt className="text-sm font-medium text-gray-500">{label}</dt>
+      <dd className="text-sm text-gray-900">{value}</dd>
     </div>
   );
 }
@@ -39,9 +38,11 @@ export function SupplierDetails() {
 
   if (isLoading) {
     return (
-      <div className="space-y-4">
-        <Skeleton className="h-8 w-48" />
-        <Skeleton className="h-72 w-full" />
+      <div className="space-y-6">
+        <Skeleton className="h-8 w-32" />
+        <Skeleton className="h-10 w-64" />
+        <Skeleton className="h-72 w-full rounded-xl" />
+        <Skeleton className="h-40 w-full rounded-xl" />
       </div>
     );
   }
@@ -50,16 +51,16 @@ export function SupplierDetails() {
     return (
       <div className="space-y-4">
         <Link href="/suppliers">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="mr-1" />
-            Suppliers
+          <Button variant="ghost" size="sm" className="text-gray-600">
+            <ArrowLeft className="mr-1 h-4 w-4" />
+            Back to Suppliers
           </Button>
         </Link>
         <Alert variant="destructive">
           <AlertDescription className="flex items-center justify-between gap-4">
             <span>{getErrorMessage(error)}</span>
             <Button variant="outline" size="sm" onClick={() => refetch()}>
-              <RefreshCw className="mr-1" />
+              <RefreshCw className="mr-1 h-3 w-3" />
               Retry
             </Button>
           </AlertDescription>
@@ -71,24 +72,35 @@ export function SupplierDetails() {
   return (
     <div className="space-y-6">
       <Link href="/suppliers">
-        <Button variant="ghost" size="sm">
-          <ArrowLeft className="mr-1" />
-          Suppliers
+        <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
+          <ArrowLeft className="mr-1 h-4 w-4" />
+          Back to Suppliers
         </Button>
       </Link>
 
       <Card>
         <CardHeader>
-          <CardTitle>{supplier.companyName}</CardTitle>
-          <CardDescription>Supplier approval workflow details</CardDescription>
-          <CardAction>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="text-xl">{supplier.companyName}</CardTitle>
+              <CardDescription className="mt-1">
+                Supplier approval workflow details
+              </CardDescription>
+            </div>
             <StatusBadge status={supplier.status} />
-          </CardAction>
+          </div>
         </CardHeader>
         <CardContent>
           <dl>
             <DetailRow label="Company Name" value={supplier.companyName} />
-            <DetailRow label="VAT ID" value={supplier.vatId} />
+            <DetailRow
+              label="VAT ID"
+              value={
+                <code className="text-xs bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded font-mono">
+                  {supplier.vatId}
+                </code>
+              }
+            />
             <DetailRow label="Country" value={supplier.country} />
             <DetailRow label="Contact Email" value={supplier.contactEmail} />
             <DetailRow label="Status" value={<StatusBadge status={supplier.status} />} />
@@ -108,7 +120,7 @@ export function SupplierDetails() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Actions</CardTitle>
+          <CardTitle className="text-lg">Actions</CardTitle>
           <CardDescription>
             Available actions depend on your role and this supplier&apos;s status.
           </CardDescription>

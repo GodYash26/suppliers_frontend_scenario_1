@@ -87,7 +87,7 @@ export function SupplierActions({ supplier, user }: SupplierActionsProps) {
     permissions.canSubmit || permissions.canApprove || permissions.canReject;
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex flex-wrap items-center gap-3">
       {permissions.canSubmit && (
         <Button size="sm" variant="secondary" disabled={pending} onClick={handleSubmitSupplier}>
           {submitMutation.isPending && <Loader2 className="w-4 h-4 mr-1 animate-spin" />}
@@ -109,13 +109,13 @@ export function SupplierActions({ supplier, user }: SupplierActionsProps) {
       )}
 
       {!hasWorkflowAction && permissions.selfApprovalBlocked && (
-        <p className="text-sm text-muted-foreground">
+        <p className="text-sm text-gray-500">
           You created this supplier, so you cannot approve or reject it yourself.
         </p>
       )}
 
       {!hasWorkflowAction && !permissions.selfApprovalBlocked && (
-        <p className="text-sm text-muted-foreground">No actions available for your role.</p>
+        <p className="text-sm text-gray-500">No actions available for your role.</p>
       )}
 
       <Dialog
@@ -143,7 +143,7 @@ export function SupplierActions({ supplier, user }: SupplierActionsProps) {
                 {...form.register('reason')}
               />
               {form.formState.errors.reason && (
-                <p className="text-xs text-destructive">{form.formState.errors.reason.message}</p>
+                <p className="text-xs text-red-600">{form.formState.errors.reason.message}</p>
               )}
             </div>
 

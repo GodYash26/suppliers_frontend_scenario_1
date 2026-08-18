@@ -8,6 +8,13 @@ import { StatusBadge } from '@/components/status-badge';
 import { Button } from '@/components/ui/button';
 import { SearchInput } from '@/components/ui/search-input';
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
   Table,
   TableBody,
   TableCell,
@@ -17,7 +24,7 @@ import {
 } from '@/components/ui/table';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Plus, RefreshCw, PackageOpen, ExternalLink } from 'lucide-react';
+import { Plus, RefreshCw, PackageOpen, ExternalLink, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getErrorMessage } from '@/lib/get-error-message';
 import { Supplier } from '@/types/supplier';
 import CreateSupplierDialog from './supplier-form';
@@ -38,11 +45,29 @@ export default function SuppliersTable() {
   const { data: suppliers, isLoading, isError, error, refetch } = useSuppliers();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
   const filteredSuppliers = useMemo(
     () => (suppliers ? filterSuppliers(suppliers, searchQuery) : []),
     [suppliers, searchQuery],
   );
+
+  const totalPages = Math.ceil(filteredSuppliers.length / pageSize);
+  const paginatedSuppliers = useMemo(() => {
+    const start = (page - 1) * pageSize;
+    return filteredSuppliers.slice(start, start + pageSize);
+  }, [filteredSuppliers, page, pageSize]);
+
+  const handlePageSizeChange = (value: string) => {
+    setPageSize(Number(value));
+    setPage(1);
+  };
+
+  const handleSearchClear = () => {
+    setSearchQuery('');
+    setPage(1);
+  };
 
   const navigateToSupplier = (id: string) => {
     router.push(`/suppliers/${id}`);
@@ -81,8 +106,11 @@ export default function SuppliersTable() {
         <SearchInput
           placeholder="Search by company name or VAT ID..."
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onClear={() => setSearchQuery('')}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setPage(1);
+          }}
+          onClear={handleSearchClear}
           className="w-full sm:max-w-sm bg-transparent"
           aria-label="Search suppliers by company name or VAT ID"
         />
@@ -159,7 +187,7 @@ export default function SuppliersTable() {
                         variant="outline"
                         size="sm"
                         className="mt-2"
-                        onClick={() => setSearchQuery('')}
+                        onClick={handleSearchClear}
                       >
                         Clear search
                       </Button>
@@ -170,7 +198,7 @@ export default function SuppliersTable() {
 
             {!isLoading &&
               !isError &&
-              filteredSuppliers.map((supplier) => (
+              paginatedSuppliers.map((supplier) => (
                 <TableRow
                   key={supplier.id}
                   className="cursor-pointer hover:bg-gray-50 transition-colors"
@@ -217,10 +245,64 @@ export default function SuppliersTable() {
         </Table>
       </div>
 
-      {suppliers && suppliers.length > 0 && !searchQuery.trim() && (
-        <p className="text-xs text-gray-400 text-right">
-          {suppliers.length} supplier{suppliers.length !== 1 ? 's' : ''} total
-        </p>
+      {filteredSuppliers.length > 0 && (
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-500">Rows per page</span>
+            <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
+              <SelectTrigger className="h-8 w-20" aria-label="Rows per page">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="10">10</SelectItem>
+                <SelectItem value="20">20</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-500">
+              {filteredSuppliers.length === 0
+                ? '0 results'
+                : `${(page - 1) * pageSize + 1}–${Math.min(page * pageSize, filteredSuppliers.length)} of ${filteredSuppliers.length}`}
+            </span>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0"
+                disabled={page === 1}
+                onClick={() => setPage((p) => p - 1)}
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
+                <Button
+                  key={p}
+                  variant={p === page ? 'default' : 'outline'}
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={() => setPage(p)}
+                  aria-label={`Page ${p}`}
+                  aria-current={p === page ? 'page' : undefined}
+                >
+                  {p}
+                </Button>
+              ))}
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-8 w-8 p-0"
+                disabled={page === totalPages}
+                onClick={() => setPage((p) => p + 1)}
+                aria-label="Next page"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

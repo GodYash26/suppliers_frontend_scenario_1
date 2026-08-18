@@ -72,7 +72,7 @@ export default function CreateSupplierDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+        <DialogHeader className='mb-4'>
           <DialogTitle>Create New Supplier</DialogTitle>
           <DialogDescription>
             Fill in the details below. The supplier will be saved as a draft.
@@ -89,7 +89,7 @@ export default function CreateSupplierDialog({
               {...register('companyName')}
             />
             {errors.companyName && (
-              <p className="text-xs text-destructive">{errors.companyName.message}</p>
+              <p className="text-xs text-red-600">{errors.companyName.message}</p>
             )}
           </div>
 
@@ -102,7 +102,7 @@ export default function CreateSupplierDialog({
               {...register('vatId')}
             />
             {errors.vatId && (
-              <p className="text-xs text-destructive">{errors.vatId.message}</p>
+              <p className="text-xs text-red-600">{errors.vatId.message}</p>
             )}
           </div>
 
@@ -110,12 +110,12 @@ export default function CreateSupplierDialog({
             <Label htmlFor="country">Country</Label>
             <Input
               id="country"
-              placeholder="Germany"
+              placeholder="Nepal"
               aria-invalid={!!errors.country}
               {...register('country')}
             />
             {errors.country && (
-              <p className="text-xs text-destructive">{errors.country.message}</p>
+              <p className="text-xs text-red-600">{errors.country.message}</p>
             )}
           </div>
 
@@ -129,7 +129,7 @@ export default function CreateSupplierDialog({
               {...register('contactEmail')}
             />
             {errors.contactEmail && (
-              <p className="text-xs text-destructive">{errors.contactEmail.message}</p>
+              <p className="text-xs text-red-600">{errors.contactEmail.message}</p>
             )}
           </div>
 
