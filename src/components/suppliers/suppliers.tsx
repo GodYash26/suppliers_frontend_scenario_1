@@ -251,7 +251,7 @@ export default function SuppliersTable() {
             <span className="text-sm text-gray-500">Rows per page</span>
             <Select value={String(pageSize)} onValueChange={handlePageSizeChange}>
               <SelectTrigger className="h-8 w-20" aria-label="Rows per page">
-                <SelectValue />
+                <SelectValue placeholder={String(pageSize)} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="10">10</SelectItem>
