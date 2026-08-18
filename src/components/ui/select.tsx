@@ -10,11 +10,23 @@ interface SelectContextType {
   open: boolean;
   setOpen: (open: boolean) => void;
   triggerRef: React.RefObject<HTMLButtonElement | null>;
-  labels: Record<string, React.ReactNode>;
-  registerLabel: (value: string, label: React.ReactNode) => void;
+  labels: Record<string, string>;
+  registerLabel: (value: string, label: string) => void;
 }
 
 const SelectContext = React.createContext<SelectContextType | null>(null);
+
+function extractText(node: React.ReactNode): string {
+  if (typeof node === 'string') return node;
+  if (typeof node === 'number') return String(node);
+  if (!node) return '';
+  if (Array.isArray(node)) return node.map(extractText).join('');
+  if (React.isValidElement(node)) {
+    const props = node.props as { children?: React.ReactNode };
+    return props.children ? extractText(props.children) : '';
+  }
+  return '';
+}
 
 export function Select({
   children,
@@ -26,28 +38,14 @@ export function Select({
   onValueChange?: (value: string) => void;
 }) {
   const [open, setOpen] = React.useState(false);
-  const [labels, setLabels] = React.useState<Record<string, React.ReactNode>>({});
+  const [labels, setLabels] = React.useState<Record<string, string>>({});
   const triggerRef = React.useRef<HTMLButtonElement | null>(null);
 
-  const registerLabel = React.useCallback((val: string, label: React.ReactNode) => {
+  const registerLabel = React.useCallback((val: string, label: string) => {
     setLabels((prev) => {
       if (prev[val] === label) return prev;
       return { ...prev, [val]: label };
     });
-  }, []);
-
-  // Close dropdown on click outside
-  React.useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        triggerRef.current &&
-        !triggerRef.current.contains(event.target as Node)
-      ) {
-        setOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
@@ -74,13 +72,13 @@ export function SelectTrigger({
       type="button"
       onClick={() => setOpen(!open)}
       className={cn(
-        "flex h-9 w-full items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm ring-offset-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-zinc-950 disabled:cursor-not-allowed disabled:opacity-50 dark:border-zinc-800 dark:bg-zinc-950 dark:ring-offset-zinc-950 dark:focus:ring-zinc-300",
+        "flex h-9 w-full items-center justify-between rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm ring-offset-white placeholder:text-gray-500 focus:outline-none focus:ring-1 focus:ring-zinc-950 disabled:cursor-not-allowed disabled:opacity-50",
         className
       )}
       {...props}
     >
       {children}
-      <ChevronDown className="h-4 w-4 opacity-50 ml-2" />
+      <ChevronDown className={cn("h-4 w-4 opacity-50 ml-2 transition-transform", open && "rotate-180")} />
     </button>
   );
 }
@@ -109,20 +107,20 @@ export function SelectContent({
   const contentRef = React.useRef<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
+    if (!open) return;
+    function handleMouseDown(event: MouseEvent) {
+      const target = event.target as Node;
       if (
         contentRef.current &&
-        !contentRef.current.contains(event.target as Node) &&
+        !contentRef.current.contains(target) &&
         triggerRef.current &&
-        !triggerRef.current.contains(event.target as Node)
+        !triggerRef.current.contains(target)
       ) {
         setOpen(false);
       }
     }
-    if (open) {
-      document.addEventListener('mousedown', handleClickOutside);
-    }
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleMouseDown);
+    return () => document.removeEventListener('mousedown', handleMouseDown);
   }, [open, setOpen, triggerRef]);
 
   if (!open) return null;
@@ -131,7 +129,7 @@ export function SelectContent({
     <div
       ref={contentRef}
       className={cn(
-        "absolute right-0 z-50 mt-1 max-h-60 w-full min-w-[8rem] overflow-auto rounded-md border border-gray-200 bg-white p-1 text-sm shadow-md ring-1 ring-black ring-opacity-5 focus:outline-none dark:border-zinc-800 dark:bg-zinc-950",
+        "absolute right-0 z-50 mt-1 max-h-60 w-full min-w-[8rem] overflow-auto rounded-md border border-gray-200 bg-white p-1 text-sm text-gray-900 shadow-md focus:outline-none",
         className
       )}
       {...props}
@@ -156,19 +154,23 @@ export function SelectItem({
   const { value: selectedValue, onValueChange, setOpen, registerLabel } = context;
 
   const isSelected = selectedValue === value;
+  const label = extractText(children);
 
   React.useEffect(() => {
-    registerLabel(value, children);
-  }, [value, children, registerLabel]);
+    registerLabel(value, label);
+  }, [value, label, registerLabel]);
 
   return (
     <div
-      onClick={() => {
+      role="option"
+      aria-selected={isSelected}
+      onMouseDown={(e) => {
+        e.preventDefault();
         onValueChange?.(value);
         setOpen(false);
       }}
       className={cn(
-        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none hover:bg-gray-100 hover:text-gray-900 focus:bg-gray-100 focus:text-gray-900 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 dark:hover:bg-zinc-800 dark:hover:text-zinc-50 dark:focus:bg-zinc-800 dark:focus:text-zinc-50 cursor-pointer",
+        "relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm text-gray-900 outline-none hover:bg-gray-100 focus:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:opacity-50 cursor-pointer",
         className
       )}
       {...props}

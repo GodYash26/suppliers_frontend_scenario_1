@@ -12,14 +12,9 @@ interface UserContextType {
 const UserContext = createContext<UserContextType | null>(null);
 
 export function UserProvider({ children }: { children: React.ReactNode }) {
-  const [userId, setUserIdState] = useState<UserId>(() => {
-    if (typeof window === 'undefined') return 'anna';
-    const stored = window.localStorage.getItem('userId') as UserId;
-    return stored && USERS[stored] ? stored : 'anna';
-  });
+  const [userId, setUserIdState] = useState<UserId>('anna');
 
   const setUserId = (id: UserId) => {
-    window.localStorage.setItem('userId', id);
     setUserIdState(id);
   };
 

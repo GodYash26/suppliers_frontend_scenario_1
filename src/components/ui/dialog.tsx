@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from 'react';
-import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import { X } from 'lucide-react';
+import { createPortal } from 'react-dom';
 
 interface DialogProps {
   open?: boolean;
@@ -56,15 +56,13 @@ export function DialogContent({
   return (
     <ClientPortal>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-        {/* Overlay */}
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity"
           onClick={() => onOpenChange?.(false)}
         />
-        {/* Content Container */}
         <div
           className={cn(
-            "relative z-50 w-full max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-lg transition-all dark:border-zinc-800 dark:bg-zinc-950",
+            "relative z-50 w-full max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-lg transition-all",
             className
           )}
           {...props}
@@ -73,7 +71,7 @@ export function DialogContent({
           <button
             type="button"
             onClick={() => onOpenChange?.(false)}
-            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:pointer-events-none dark:ring-offset-zinc-950 dark:focus:ring-zinc-300"
+            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-white transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:pointer-events-none"
           >
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
@@ -117,7 +115,7 @@ export function DialogTitle({
 }: React.HTMLAttributes<HTMLHeadingElement>) {
   return (
     <h2
-      className={cn("text-lg font-semibold leading-none tracking-tight", className)}
+      className={cn("text-lg font-semibold leading-none tracking-tight text-gray-900", className)}
       {...props}
     />
   );
@@ -129,7 +127,7 @@ export function DialogDescription({
 }: React.HTMLAttributes<HTMLParagraphElement>) {
   return (
     <p
-      className={cn("text-sm text-gray-500 dark:text-zinc-400 mt-1.5", className)}
+      className={cn("text-sm text-gray-500 mt-1.5", className)}
       {...props}
     />
   );
