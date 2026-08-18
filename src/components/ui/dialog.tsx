@@ -25,23 +25,21 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
 }
 
 function ClientPortal({ children }: { children: React.ReactNode }) {
-  const portalRef = React.useRef<HTMLDivElement | null>(null);
-
-  if (!portalRef.current && typeof document !== 'undefined') {
-    portalRef.current = document.createElement('div');
-  }
+  const [container] = React.useState<HTMLDivElement | null>(() => {
+    if (typeof document === 'undefined') return null;
+    return document.createElement('div');
+  });
 
   React.useEffect(() => {
-    const el = portalRef.current;
-    if (!el) return;
-    document.body.appendChild(el);
+    if (!container) return;
+    document.body.appendChild(container);
     return () => {
-      document.body.removeChild(el);
+      document.body.removeChild(container);
     };
-  }, []);
+  }, [container]);
 
-  if (!portalRef.current) return null;
-  return createPortal(children, portalRef.current);
+  if (!container) return null;
+  return createPortal(children, container);
 }
 
 export function DialogContent({
